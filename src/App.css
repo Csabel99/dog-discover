@@ -1,0 +1,88 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #f7f9fc, #dfe9f3);
+  min-height: 100vh;
+}
+
+body {
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+div {
+  text-align: center;
+  padding: 30px;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+button {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #4f8ef7;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background-color: #346fd1;
+  transform: scale(1.05);
+}
+
+img {
+  display: block;
+  margin: 20px auto;
+  width: 350px;
+  max-width: 90%;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+h3 {
+  margin-top: 30px;
+  color: #333;
+}
+
+.app {
+  max-width: 800px;
+  margin: 40px auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 30px;
+}
+
+.attributes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.ban-list {
+  margin-top: 15px;
+}
+
+.ban-list button {
+  background-color: #ff6b6b;
+  margin: 5px;
+}
+
+.ban-list button:hover {
+  background-color: #e04b4b;
+}
