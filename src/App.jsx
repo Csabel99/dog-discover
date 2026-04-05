@@ -1,78 +1,183 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
-  const [dogImage, setDogImage] = useState("");
-  const [breed, setBreed] = useState("");
-  const [subBreed, setSubBreed] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [banList, setBanList] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [searchBox, setSearchBox] = useState("");
+  const [regionFilter, setRegionFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
-  const fetchDog = async () => {
-    const res = await fetch("https://dog.ceo/api/breeds/image/random");
-    const data = await res.json();
+  const fetchCountries = async () => {
+    setLoading(true);
 
-    const parts = data.message.split("/");
-    const breedPart = parts[parts.length - 2];
-    const file = parts[parts.length - 1];
-    const breedPieces = breedPart.split("-");
+    try {
+      const res = await fetch(
+        "https://restcountries.com/v3.1/all?fields=name,capital,region,population,flags"
+      );
 
-    const mainBreed = breedPieces[0];
+      const data = await res.json();
 
-    let sub = "None";
-    if (breedPieces.length > 1) {
-      sub = breedPieces[1];
+      let countryList = [];
+
+      for (let i = 0; i < data.length; i++) {
+        let country = data[i];
+
+        let name = "Unknown";
+        if (country.name && country.name.common) {
+          name = country.name.common;
+        }
+
+        let capital = "N/A";
+        if (country.capital && country.capital.length > 0) {
+          capital = country.capital[0];
+        }
+
+        let region = "Unknown";
+        if (country.region) {
+          region = country.region;
+        }
+
+        let population = 0;
+        if (country.population) {
+          population = country.population;
+        }
+
+        let flag = "";
+        if (country.flags && country.flags.png) {
+          flag = country.flags.png;
+        }
+
+        countryList.push({
+          id: i + 1,
+          name: name,
+          capital: capital,
+          region: region,
+          population: population,
+          flag: flag,
+        });
+      }
+
+      setCountries(countryList);
+    } catch (error) {
+      console.log("Error:", error);
     }
 
-    if (
-      banList.includes(mainBreed) ||
-      banList.includes(sub) ||
-      banList.includes(file)
-    ) {
-      fetchDog();
-      return;
+    setLoading(false);
+  };
+
+  useEffect(() => {
+  const loadData = async () => {
+    await fetchCountries();
+  };
+
+  loadData();
+}, []);
+
+  const filteredCountries = countries.filter((country) => {
+    let search = searchBox.toLowerCase();
+
+    let matchesSearch = false;
+
+    if (searchBox === "") {
+      matchesSearch = true;
+    } else if (country.name.toLowerCase().includes(search)) {
+      matchesSearch = true;
+    } else if (country.capital.toLowerCase().includes(search)) {
+      matchesSearch = true;
     }
 
-    setDogImage(data.message);
-    setBreed(mainBreed);
-    setSubBreed(sub);
-    setFileName(file);
-  };
+    let matchesRegion = true;
 
-  const addToBanList = (item) => {
-    if (item !== "" && !banList.includes(item) && item !== "None") {
-      setBanList([...banList, item]);
+    if (regionFilter !== "All") {
+      if (country.region !== regionFilter) {
+        matchesRegion = false;
+      }
     }
-  };
 
-  const removeFromBanList = (itemToRemove) => {
-    const updatedList = banList.filter((item) => item !== itemToRemove);
-    setBanList(updatedList);
-  };
+    return matchesSearch && matchesRegion;
+  });
+
+  let totalCountries = countries.length;
+
+  let regions = [];
+  for (let i = 0; i < countries.length; i++) {
+    if (!regions.includes(countries[i].region)) {
+      regions.push(countries[i].region);
+    }
+  }
+
+  let totalRegions = regions.length;
+
+  let largePopulation = 0;
+  for (let i = 0; i < countries.length; i++) {
+    if (countries[i].population > 100000000) {
+      largePopulation++;
+    }
+  }
 
   return (
-      <div className="app">
-    <h1>Dog Discover</h1>
+    <div className="app">
+      <h1>Country Dashboard</h1>
 
-    <button onClick={fetchDog}>Discover Dog</button>
+      <button onClick={fetchCountries}>Refresh Countries</button>
 
-<div className="attributes">
-  <button onClick={() => addToBanList(breed)}>Breed: {breed}</button>
-  <button onClick={() => addToBanList(subBreed)}>Sub-breed: {subBreed}</button>
-  <button onClick={() => addToBanList(fileName)}>File: {fileName}</button>
-</div>
+      <div className="stats">
+        <div className="card">
+          <h3>Total Countries</h3>
+          <p>{totalCountries}</p>
+        </div>
 
-    {dogImage && <img src={dogImage} alt="dog" width="300" />}
+        <div className="card">
+          <h3>Total Regions</h3>
+          <p>{totalRegions}</p>
+        </div>
 
-   <div className="ban-list">
-  {banList.map((item, index) => (
-    <button key={index} onClick={() => removeFromBanList(item)}>
-      {item}
-    </button>
-  ))}
-</div>
-  </div>
-);
+        <div className="card">
+          <h3>Population Over 100M</h3>
+          <p>{largePopulation}</p>
+        </div>
+      </div>
+
+      <div className="controls">
+        <p>Showing {filteredCountries.length} countries</p>
+
+        <input
+          type="text"
+          placeholder="Search by name or capital"
+          value={searchBox}
+          onChange={(e) => setSearchBox(e.target.value)}
+        />
+
+        <select
+          value={regionFilter}
+          onChange={(e) => setRegionFilter(e.target.value)}
+        >
+          <option value="All">All Regions</option>
+          {regions.map((region, index) => (
+            <option key={index} value={region}>
+              {region}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading ? (
+        <p>Loading countries...</p>
+      ) : (
+        <div className="dog-list">
+          {filteredCountries.map((country) => (
+            <div key={country.id} className="dog-card">
+              <img src={country.flag} alt={country.name} width="200" />
+              <p><b>Name:</b> {country.name}</p>
+              <p><b>Capital:</b> {country.capital}</p>
+              <p><b>Region:</b> {country.region}</p>
+              <p><b>Population:</b> {country.population.toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default App;
