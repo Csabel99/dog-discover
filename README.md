@@ -46,9 +46,7 @@ The following **additional** features are implemented:
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
-
-<img src='./country-api-part2.gif' width="600"/>
-
+<img src="country-api-part2.gif" title="Video Walkthrough" width="600" alt="Video Walkthrough" />
 GIF created with ScreenToGif  
 
 ## Notes
